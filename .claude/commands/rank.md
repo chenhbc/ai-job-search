@@ -6,6 +6,8 @@ You are batch-scoring the jobs that `/scrape` has collected, so the user can dec
 
 Follow these steps **in order**.
 
+**Personal-data directory.** Read the candidate profile and `job_search_tracker.csv` from `$JOB_SEARCH_HOME` when that is an absolute path outside this repository, otherwise from `personal/`. Fall back to the tracked template only when the personal copy does not exist. Never modify a tracked template.
+
 ---
 
 ## Step 0: Parse Input

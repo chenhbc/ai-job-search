@@ -2,6 +2,8 @@
 
 You are enriching the candidate profile by discovering competencies hidden in documents and public online presence. This command is additive only — it never modifies existing profile content, only extends it.
 
+**Personal-data directory.** Before reading or writing a profile file, the tracker, a generated CV, a cover letter, or an application archive, resolve the directory: if `$JOB_SEARCH_HOME` is an absolute path outside this repository, use it; otherwise use `personal/`. Every path this runbook names (`CLAUDE.md`, `01-candidate-profile.md`, the other `0*.md` profile files, `cv/main_example.tex`, `job_search_tracker.csv`, `documents/applications/`, and the rest) is relative to that directory. Read the personal copy when it exists, and fall back to the tracked template when it does not. Write only under that directory. Never modify a tracked template.
+
 Follow these steps **exactly in order**. Do not skip steps.
 
 ---

@@ -186,7 +186,8 @@ ai-job-search/
 │   ├── jobindex-search/               # Jobindex.dk (Denmark)
 │   ├── jobnet-search/                 # Jobnet.dk (Denmark, government portal)
 │   ├── linkedin-search/               # LinkedIn public job listings (country-agnostic)
-│   └── freehire-search/               # freehire.me tech job aggregator (multi-market, REST API)
+│   ├── freehire-search/               # freehire.me tech job aggregator (multi-market, REST API)
+│   └── mycareersfuture-search/        # MyCareersFuture (Singapore, public JSON API; this fork)
 ├── cv/
 │   └── main_example.tex               # moderncv LaTeX template
 ├── cover_letters/
@@ -219,7 +220,11 @@ ai-job-search/
 ├── job_scraper/                       # Scraper state (seen jobs, results)
 ├── gmail_sync/                        # /gmail-sync state (processed message IDs, last sync date)
 ├── upskill/                           # /upskill report output (markdown reports per run)
-├── job_search_tracker.csv             # Application tracking spreadsheet
+├── job_search_tracker.csv             # Application tracking spreadsheet (gitignored once it exists)
+├── docs/
+│   ├── SYNCING.md                     # How this fork tracks upstream
+│   ├── PRIVACY.md                     # Where personal files go; they are not committed
+│   └── singapore/                     # Singapore region rules (default on this fork)
 └── SETUP.md                           # Detailed setup guide
 ```
 
@@ -306,6 +311,7 @@ For **country-agnostic** starting points outside Denmark, the repo ships two por
 
 - **`linkedin-search`** — built on LinkedIn's public, unauthenticated `jobs-guest` endpoints. Field-agnostic, **zero runtime dependencies** (runs with just `bun`), and takes the search location as an explicit flag, so it works for any market out of the box (`-l "Berlin, Germany"`, `-l "Mumbai, Maharashtra, India"`, `-l "Remote"`, …). Intended for **personal use only** — automated access is against LinkedIn's Terms of Service, so keep volume low. See `.agents/skills/linkedin-search/SKILL.md`.
 - **`freehire-search`** — queries the [freehire.me](https://freehire.me) aggregator's public REST API (JSON, no API key). Tech-focused (software, data, engineering, DevOps, remote), multi-market via facet flags (`--region`, `--country`, `--remote`), and **zero runtime dependencies**. Unlike the HTML-scraping Danish portals, results come back structured (skills, seniority, category). The backend is MIT-licensed and [self-hostable](https://github.com/strelov1/freehire) — point `FREEHIRE_API_URL` at your own instance if you prefer. See `.agents/skills/freehire-search/SKILL.md`.
+- **`mycareersfuture-search`** (this fork) — queries the MyCareersFuture public JSON API for Singapore listings. Zero runtime dependencies. Personal low-volume use; do not republish listings. See `.agents/skills/mycareersfuture-search/SKILL.md`.
 
 ### Extending the framework: portals, templates, criteria - and borrowing from other forks
 
@@ -363,6 +369,14 @@ The framework supports two distinct modes of job searching:
 - **Latent opportunity discovery:** By analyzing your full history (not just job titles, but the actual work you did), the system can surface career paths you haven't considered. Transferable skills that map to unexpected industries, patterns in what you enjoyed or excelled at, or emerging roles that combine your domain expertise with new technology.
 
 To get the most from this, invest time during `/setup` in describing not just your experience, but what energized you, what drained you, and what you'd want more of. This context directly shapes how the system evaluates fit and which roles it surfaces during `/scrape`.
+
+## This fork
+
+`origin` is [chenhbc/ai-job-search](https://github.com/chenhbc/ai-job-search). `upstream` is [MadsLorentzen/ai-job-search](https://github.com/MadsLorentzen/ai-job-search). How to sync, and which files tend to conflict, is in [docs/SYNCING.md](docs/SYNCING.md). Do not push to upstream.
+
+Singapore is the default region for the runbooks in this fork: [docs/singapore/README.md](docs/singapore/README.md). The MyCareersFuture CLI is `.agents/skills/mycareersfuture-search/`. JobStreet SG and Careers@Gov are not scraped; the reasons are in [docs/singapore/portals-not-built.md](docs/singapore/portals-not-built.md).
+
+This copy is public. Filled profiles, generated CVs, cover letters, and the application tracker stay out of git. See [docs/PRIVACY.md](docs/PRIVACY.md).
 
 ## Contributing
 

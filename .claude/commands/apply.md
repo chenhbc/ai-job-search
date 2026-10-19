@@ -4,6 +4,8 @@ You are orchestrating a two-agent job application workflow. The job posting is p
 
 Follow these steps **exactly in order**. Do not skip steps.
 
+**Personal-data directory.** Before reading or writing a profile file, the tracker, a generated CV, a cover letter, or an application archive, resolve the directory: if `$JOB_SEARCH_HOME` is an absolute path outside this repository, use it; otherwise use `personal/`. Every path this runbook names (`CLAUDE.md`, `01-candidate-profile.md`, the other `0*.md` profile files, `cv/main_example.tex`, `job_search_tracker.csv`, `documents/applications/`, and the rest) is relative to that directory. Read the personal copy when it exists, and fall back to the tracked template when it does not. Write only under that directory. Never modify a tracked template.
+
 **Standing rule — write new facts back to the profile.** If the user confirms, corrects or supplies a fact that is not already in `01-candidate-profile.md` — a metric, a project detail, a skill, a scope correction — update that file in the same turn. Do not leave it living only in the conversation or in a draft.
 
 This is not bookkeeping. A fact that exists only in chat **will be treated as unsupported by a later session and stripped from drafts as a fabrication.** Anything absent from the sources does not exist as far as future drafting is concerned, and the loss is silent — a real achievement quietly disappears from every subsequent CV.

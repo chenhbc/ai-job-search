@@ -33,6 +33,8 @@ In targeted mode, derive a slug from the job title and company for the report fi
 
 ## Step 2: Load Data
 
+**Personal-data directory.** Read `job_search_tracker.csv`, `job_scraper/seen_jobs.json`, and `01-candidate-profile.md` from `$JOB_SEARCH_HOME` when that is an absolute path outside this repository, otherwise from `personal/`. Write the report under that directory too. Fall back to the tracked template only when the personal copy does not exist. Never modify a tracked template.
+
 ### Aggregate mode
 1. Read `job_search_tracker.csv`. Extract all rows. The columns are:
    `date, company, sector, role, role_type, channel, status, contact_person, fit_rating, notes, cv_file, cover_letter_file, source, deadline`

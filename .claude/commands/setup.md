@@ -2,6 +2,8 @@
 
 You are running the onboarding setup for the AI Job Search framework. Your goal is to collect the user's professional information and populate all profile files so the `/apply` workflow works out of the box.
 
+**Personal-data directory.** Before reading or writing a profile file, the tracker, a generated CV, a cover letter, or an application archive, resolve the directory: if `$JOB_SEARCH_HOME` is an absolute path outside this repository, use it; otherwise use `personal/`. Every path this runbook names (`CLAUDE.md`, `01-candidate-profile.md`, the other `0*.md` profile files, `cv/main_example.tex`, `job_search_tracker.csv`, `documents/applications/`, and the rest) is relative to that directory. Read the personal copy when it exists, and fall back to the tracked template when it does not. Write only under that directory. Never modify a tracked template.
+
 There are three paths into setup. Step 0 picks the right one; all three converge on Step 3 (file generation) and Step 4 (confirmation).
 
 ---
@@ -20,11 +22,10 @@ visibility cannot be determined — warn now and wait:
 
 > **Heads-up before we start:** your `origin` points at `<owner/repo>`, which is a
 > public GitHub fork. This setup writes your personal data (name, contact details,
-> employment history, salary expectations) into **tracked** files, and anything you
-> commit *and push* to that fork is visible to anyone. Two safe options: keep your
-> profile commits local and never push them, or push to a **private** repository
-> instead — SETUP.md section 8 has the two-minute private-remote recipe. Want to
-> continue with the setup?
+> employment history, salary expectations) under `$JOB_SEARCH_HOME` or `personal/`,
+> not into the tracked templates. `personal/` is gitignored, but a force-add and a
+> push would publish it. SETUP.md section 8 has the private-remote recipe if you
+> also want a private remote. Want to continue with the setup?
 
 Wait for the user's confirmation before showing the path prompt. A private origin, no
 origin, or a non-fork remote needs no warning — continue silently.
@@ -235,7 +236,7 @@ Wait for the user's choice on each conflict. If no conflicts, state "No conflict
 
 ### Step A7: Write Confirmed Changes and Fill Gaps
 
-Apply the confirmed changes with the Edit tool. Make targeted edits only. Do not rewrite entire files. State which changes were applied per file. If a file has no confirmed changes, state "No changes made to [filename]."
+Apply the confirmed changes with the Edit tool, on the copies in the personal-data directory. Make targeted edits only. Do not rewrite entire files, and never modify a tracked template. State which changes were applied per file. If a file has no confirmed changes, state "No changes made to [filename]."
 
 Documents cover skills, experience, education, references, and behavioral signal. They do not cover everything `/apply` and `/scrape` need. After the writes, ask follow-up questions for gaps:
 
@@ -352,7 +353,7 @@ This proactive suggestion step helps users discover career paths they might not 
 
 ## Step 3: Generate Profile Files
 
-Once data collection is complete, generate or finish populating the following files. **For Path A**, the seven skill files are already populated by Step A7; check each before writing and skip if its content is no longer placeholder text.
+Once data collection is complete, generate or finish populating the following files under the personal-data directory. Do not edit the tracked originals. **For Path A**, the seven skill files are already populated by Step A7; check each before writing and skip if its content is no longer placeholder text.
 
 ### 1. Update `CLAUDE.md`
 Replace all `[PLACEHOLDER]` tokens with the user's actual information. Keep the structure, workflow, and verification checklist intact.
@@ -413,10 +414,10 @@ Present a summary:
 > - `cv/main_example.tex` - Your LaTeX CV template
 > - `.claude/skills/job-scraper/search-queries.md` - Job search queries for `/scrape`
 >
-> **Privacy note:** the files above now contain your personal data and are *tracked by git*.
-> A GitHub fork of the template is always public (forks of public repos cannot be made
-> private), so do not push these commits to a fork. Keep them local, or push to a private
-> repository instead - see SETUP.md section 8 for the private-remote setup.
+> **Privacy note:** the files above now contain your personal data and live under
+> `$JOB_SEARCH_HOME` or `personal/`. They are not the tracked templates. Do not
+> commit them. A force-add on this public fork would publish them. SETUP.md section 8
+> has the private-remote recipe.
 >
 > **Try it out:**
 > - Run `/scrape` to search for matching jobs right now

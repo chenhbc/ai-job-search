@@ -1,9 +1,10 @@
 # CI for the framework itself: LaTeX smoke compiles, skill/command lint,
-# CLI typechecks, and (upstream only) placeholder integrity.
+# CLI typechecks, and placeholder integrity.
 #
 # Fork-friendly by design: forks personalize CLAUDE.md, the skill files, and
-# cv/main_example.tex via /setup, so the placeholder-integrity job and the
-# exact page-count/content assertions run only on the upstream template repo.
+# cv/main_example.tex via /setup, so the exact page-count/content assertions
+# run only on the upstream template repo. Placeholder integrity also runs on
+# chenhbc/ai-job-search, where the tracked templates stay placeholders.
 # Compile success, lint correctness, and an extractable PDF text layer are
 # asserted everywhere.
 #
@@ -229,8 +230,8 @@ jobs:
         working-directory: .agents/skills/${{ matrix.tool }}/cli
 
   placeholder-integrity:
-    name: Placeholder integrity (upstream template only)
-    if: github.repository == 'MadsLorentzen/ai-job-search'
+    name: Placeholder integrity
+    if: github.repository == 'MadsLorentzen/ai-job-search' || github.repository == 'chenhbc/ai-job-search'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4

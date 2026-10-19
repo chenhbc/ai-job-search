@@ -1,6 +1,8 @@
 # /notion-sync - Push Ranked Jobs and Applications to a Notion Database
 
-You are publishing a **read-only view** of the job search into the user's Notion workspace: one database row per job, with a detailed page per shortlisted match. The repo files stay the system of record - `job_scraper/seen_jobs.json` owns scraped/ranked jobs and `job_search_tracker.csv` owns applications. Notion is a disposable presentation layer on top of them; nothing ever syncs back.
+You are publishing a **read-only view** of the job search into the user's Notion workspace: one database row per job, with a detailed page per shortlisted match. The personal-data directory is the system of record for applications: `job_search_tracker.csv` there owns applications, and `job_scraper/seen_jobs.json` there owns scraped/ranked jobs. Notion is a disposable presentation layer on top of them; nothing ever syncs back.
+
+**Personal-data directory.** Read those files from `$JOB_SEARCH_HOME` when that is an absolute path outside this repository, otherwise from `personal/`. Fall back to a tracked template only when the personal copy does not exist. Never modify a tracked template.
 
 This command requires the **Notion MCP server** (OAuth). It reads state, upserts pages, and stops - it never ranks, applies, or edits repo files. Notion is the in-tree reference binding; the sync contract itself is tool-agnostic (see "Adapting to Another Tool" at the end - only the two sections marked *(Notion binding)* are tool-specific).
 
@@ -8,7 +10,16 @@ This command requires the **Notion MCP server** (OAuth). It reads state, upserts
 
 Both present the same tracker data; they own different moments. `/html-report` is the **deep-review lane**: a self-contained offline dashboard with charts and a filterable table, regenerated at your desk. `/notion-sync` is the **glanceable lane**: the current state of the pipeline, reachable anywhere Notion runs (desktop, web, phone). They compose rather than compete - after `/outcome` records a result, re-run either or both to refresh the views.
 
-Follow these steps **in order**.
+## Optional destination
+
+Notion is one destination, not a requirement. Nothing else in the framework waits on it. If `$ARGUMENTS` is `google-docs` or `html`, skip the Notion binding (Steps 1 and 3) and use the matching alternative below. Otherwise try Notion; when Step 1 exits because Notion is not connected, offer the two alternatives in one line and stop.
+
+Both alternatives use the sync set from Step 2 and obey **Important Rules** (one-way, filenames only, no profile export, no document bodies):
+
+1. **Google Docs.** When a Google Docs connector can create or update a document, write the Step 6 table into a document titled `Job Search Pipeline`. Do not require a Notion tool name.
+2. **Local HTML.** Run the `/html-report` runbook (`.claude/commands/html-report.md`). It writes a self-contained dashboard. Put the file under `reports/` or the personal-data directory in `docs/PRIVACY.md` (gitignored). Do not commit it.
+
+Follow these steps **in order** when the destination is Notion.
 
 ---
 
@@ -20,6 +31,8 @@ Follow these steps **in order**.
 - `--min-score <N>` → override the score threshold
 - `--all` → sync every ranked job regardless of score
 - `--rebuild` → re-fetch and rewrite page bodies too (see Step 5 - normally bodies are write-once)
+- `google-docs` → Google Docs alternative (see Optional destination). Do not call Notion.
+- `html` → local HTML alternative (see Optional destination). Do not call Notion.
 
 ---
 
