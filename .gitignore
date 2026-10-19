@@ -90,6 +90,11 @@ documents/interview/**
 # Personal job search tracking
 job_search_tracker.csv
 
+# Filled profiles and generated output for a public checkout.
+# Prefer JOB_SEARCH_HOME outside the repo (see docs/PRIVACY.md).
+# personal/ is the in-repo fallback. No negation re-includes it.
+personal/
+
 # Gmail sync state (message IDs, subjects - personal data)
 gmail_sync/
 

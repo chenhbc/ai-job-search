@@ -8,6 +8,8 @@
 
 The `site:` query templates in this file are the **WebSearch fallback** — for portals without a CLI, company career pages, or when a CLI fails.
 
+**Singapore is the default region.** When the user has not named Europe or the US for this request, take query text, boards, and location filters from `docs/singapore/sg-search-queries.md` (same category layout as this file) and from `docs/singapore/region-defaults.md`. `mycareersfuture-search` is the Singapore government-board CLI. JobStreet SG and Careers@Gov have no CLI; see `docs/singapore/portals-not-built.md`. A request that names Europe or the US uses this file's own templates.
+
 **Language scope:** write every query category in every language listed in your CLAUDE.md Languages table (typically 1-2, sometimes more). A posting requiring a language you have *not* declared, as a job condition, is excluded before scoring; a posting requiring a *higher level* than you declared in a language you *do* work in is flagged for your own judgment, not excluded — see `04-job-evaluation.md`'s Language Gate, the single source of truth for this rule. Translate each category's keywords rather than machine-translating word-for-word (e.g. "Frontend Developer" -> "Desarrollador Frontend", not a literal word-for-word translation) if you work in more than one language.
 
 ## Search Sites

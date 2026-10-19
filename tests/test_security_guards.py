@@ -455,6 +455,71 @@ class TrackedNodeModulesTests(GuardRepoFixture):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
+class TrackedPersonalDataTests(GuardRepoFixture):
+    """Personal outputs and filled-in profile templates must not be tracked."""
+
+    def _git(self, *args):
+        return subprocess.run(
+            ["git", *args], cwd=self.root, capture_output=True, text=True, check=False
+        )
+
+    def _init_repo(self):
+        self._git("init", "-q")
+        self._git("config", "user.email", "t@example.com")
+        self._git("config", "user.name", "t")
+
+    def test_force_added_tracker_fails(self):
+        self._init_repo()
+        (self.root / "job_search_tracker.csv").write_text("date,company\n", encoding="utf-8")
+        self._git("add", "-f", "job_search_tracker.csv")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("tracked personal-data path", result.stdout)
+        self.assertIn("job_search_tracker.csv", result.stdout)
+
+    def test_force_added_personal_directory_fails(self):
+        self._init_repo()
+        dest = self.root / "personal" / "CLAUDE.md"
+        dest.parent.mkdir()
+        dest.write_text("filled\n", encoding="utf-8")
+        self._git("add", "-f", "personal/CLAUDE.md")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("personal/CLAUDE.md", result.stdout)
+
+    def test_template_that_lost_its_sentinel_fails(self):
+        self._init_repo()
+        (self.root / "CLAUDE.md").write_text("# filled profile\n", encoding="utf-8")
+        self._git("add", "CLAUDE.md")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("lost its sentinel", result.stdout)
+        self.assertIn("[YOUR_NAME]", result.stdout)
+
+    def test_placeholders_and_gitkeep_stay_allowed(self):
+        self._init_repo()
+        (self.root / "CLAUDE.md").write_text("Name: [YOUR_NAME]\n", encoding="utf-8")
+        profile = self.root / ".claude" / "skills" / "job-application-assistant" / "01-candidate-profile.md"
+        profile.parent.mkdir(parents=True)
+        profile.write_text("Email: [YOUR_EMAIL]\n", encoding="utf-8")
+        (self.root / "cv").mkdir()
+        (self.root / "cv" / "main_example.tex").write_text(
+            "\\email{[your.email@example.com]}\n", encoding="utf-8"
+        )
+        keep = self.root / "documents" / "cv" / ".gitkeep"
+        keep.parent.mkdir(parents=True)
+        keep.write_text("", encoding="utf-8")
+        self._git(
+            "add",
+            "CLAUDE.md",
+            ".claude/skills/job-application-assistant/01-candidate-profile.md",
+            "cv/main_example.tex",
+            "documents/cv/.gitkeep",
+        )
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
 class RealRepoTests(unittest.TestCase):
     def test_guards_pass_on_this_repo(self):
         # The live check CI runs: the actual repo tree must satisfy its own guards.

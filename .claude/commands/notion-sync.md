@@ -8,7 +8,16 @@ This command requires the **Notion MCP server** (OAuth). It reads state, upserts
 
 Both present the same tracker data; they own different moments. `/html-report` is the **deep-review lane**: a self-contained offline dashboard with charts and a filterable table, regenerated at your desk. `/notion-sync` is the **glanceable lane**: the current state of the pipeline, reachable anywhere Notion runs (desktop, web, phone). They compose rather than compete - after `/outcome` records a result, re-run either or both to refresh the views.
 
-Follow these steps **in order**.
+## Optional destination
+
+Notion is one destination, not a requirement. Nothing else in the framework waits on it. If `$ARGUMENTS` is `google-docs` or `html`, skip the Notion binding (Steps 1 and 3) and use the matching alternative below. Otherwise try Notion; when Step 1 exits because Notion is not connected, offer the two alternatives in one line and stop.
+
+Both alternatives use the sync set from Step 2 and obey **Important Rules** (one-way, filenames only, no profile export, no document bodies):
+
+1. **Google Docs.** When a Google Docs connector can create or update a document, write the Step 6 table into a document titled `Job Search Pipeline`. Do not require a Notion tool name.
+2. **Local HTML.** Run the `/html-report` runbook (`.claude/commands/html-report.md`). It writes a self-contained dashboard. Put the file under `reports/` or the personal-data directory in `docs/PRIVACY.md` (gitignored). Do not commit it.
+
+Follow these steps **in order** when the destination is Notion.
 
 ---
 
@@ -20,6 +29,8 @@ Follow these steps **in order**.
 - `--min-score <N>` → override the score threshold
 - `--all` → sync every ranked job regardless of score
 - `--rebuild` → re-fetch and rewrite page bodies too (see Step 5 - normally bodies are write-once)
+- `google-docs` → Google Docs alternative (see Optional destination). Do not call Notion.
+- `html` → local HTML alternative (see Optional destination). Do not call Notion.
 
 ---
 

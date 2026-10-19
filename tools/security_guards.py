@@ -50,6 +50,7 @@ ALLOWED_PERMISSIONS = {
     "Bash(bun run .agents/skills/jobnet-search/cli/src/cli.ts:*)",
     "Bash(bun run .agents/skills/linkedin-search/cli/src/cli.ts:*)",
     "Bash(bun run .agents/skills/freehire-search/cli/src/cli.ts:*)",
+    "Bash(bun run .agents/skills/mycareersfuture-search/cli/src/cli.ts:*)",
     "Bash(python salary_lookup.py:*)",
     "Bash(python3 salary_lookup.py:*)",
     "Bash(python tools/rank_state.py:*)",
@@ -92,6 +93,9 @@ REQUIRED_IGNORE_RULES = [
     # /interview's prep packs land under documents/applications/**, above.
     "documents/interview/**",
     "job_search_tracker.csv",
+    # In-repo fallback for filled profiles. See docs/PRIVACY.md.
+    # Prefer JOB_SEARCH_HOME outside the repo. No negation re-includes this.
+    "personal/",
     "gmail_sync/",
     "reports/",
     "upskill/*.md",
@@ -280,7 +284,7 @@ def check_package_manifests() -> None:
             )
 
 
-def check_tracked_node_modules() -> None:
+def check_tracked_node_modules(tracked: list[str] | None = None) -> None:
     """Fail on any tracked path with a ``node_modules`` component.
 
     ``.gitignore``'s old ``node_modules/`` rule matched directories only, so a
@@ -291,16 +295,12 @@ def check_tracked_node_modules() -> None:
     force-added or inherited from before the rule changed. Skipped quietly when
     the tree is not a git checkout (the guard also runs from a bare copy).
     """
-    try:
-        proc = subprocess.run(
-            ["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=False
-        )
-    except OSError:
+    if tracked is None:
+        tracked = _tracked_paths()
+    if tracked is None:
         return
-    if proc.returncode != 0:
-        return
-    for rel in proc.stdout.decode("utf-8", errors="replace").split("\x00"):
-        if rel and "node_modules" in rel.split("/"):
+    for rel in tracked:
+        if "node_modules" in rel.split("/"):
             errors.append(
                 f"tracked path inside node_modules: {rel!r}. Installed dependencies "
                 "(or a symlink standing in for them) must never be committed: run "
@@ -308,11 +308,141 @@ def check_tracked_node_modules() -> None:
             )
 
 
+# Tracked templates that must keep these sentinels. A filled-in profile
+# committed to this public fork drops the token and fails the guard.
+# Paths are relative to the repo root. The check runs only when the path
+# is tracked, so a fixture tree that does not contain the file is skipped.
+PROFILE_SENTINELS = {
+    "CLAUDE.md": "[YOUR_NAME]",
+    ".claude/skills/job-application-assistant/01-candidate-profile.md": "[YOUR_EMAIL]",
+    "cv/main_example.tex": r"\email{[your.email@example.com]}",
+}
+
+_TEMPLATE_ALLOW = {
+    "cv/main_example.tex",
+    "cover_letters/cover_example.tex",
+    "documents/README.md",
+}
+
+
+def is_tracked_personal_output(rel: str) -> bool:
+    """Whether a git-tracked path is personal output that must not be committed.
+
+    Templates and .gitkeep placeholders return False. The patterns mirror
+    REQUIRED_IGNORE_RULES; this catches `git add -f` and anything the ignore
+    file no longer matches.
+    """
+    if rel in _TEMPLATE_ALLOW:
+        return False
+    name = rel.rsplit("/", 1)[-1]
+    # personal/ is the in-repo data directory. A placeholder inside it is
+    # still a tracked personal path (git add -f).
+    if rel.startswith("personal/"):
+        return True
+    # Directory placeholders (company_research/.gitkeep, documents/**/.gitkeep,
+    # job_scraper/.gitkeep, upskill/.gitkeep) are tracked on purpose.
+    if name == ".gitkeep":
+        return False
+    if rel in {"job_search_tracker.csv", "salary_data.json"} or name in {
+        "job_search_tracker.csv",
+        "salary_data.json",
+    }:
+        return True
+    if rel.startswith(("gmail_sync/", "reports/", "personal/", "company_research/")):
+        return True
+    if rel.startswith("cv/") and name.endswith(".txt"):
+        return True
+    if rel.startswith("cv/") and name.startswith("main_") and name != "main_example.tex":
+        return True
+    if rel.startswith("cover_letters/") and (
+        name.startswith("cover_") or name.startswith("Cover_")
+    ) and name != "cover_example.tex":
+        return True
+    if rel.startswith(
+        (
+            "documents/cv/",
+            "documents/linkedin/",
+            "documents/diplomas/",
+            "documents/references/",
+            "documents/projects/",
+            "documents/applications/",
+            "documents/postings/",
+            "documents/interview/",
+        )
+    ):
+        return True
+    parts = rel.split("/")
+    if "job_scraper" in parts:
+        rest = parts[parts.index("job_scraper") + 1 :]
+        if rest in (["seen_jobs.json"], ["notion_sync.json"]):
+            return True
+        if len(rest) == 1 and rest[0].endswith(".md"):
+            return True
+    if "upskill" in parts and name.startswith("report-") and name.endswith(".md"):
+        return True
+    if parts[0] == "upskill" and name.endswith(".md"):
+        return True
+    if name == ".env" or name.startswith(".env."):
+        return True
+    if name == "linkedin_Profile.pdf" or name.endswith("_BehavioralReport.pdf"):
+        return True
+    if rel == ".claude/settings.local.json":
+        return True
+    return False
+
+
+def _tracked_paths() -> list[str] | None:
+    """Tracked paths, or None when this tree is not a git checkout."""
+    try:
+        proc = subprocess.run(
+            ["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=False
+        )
+    except OSError:
+        return None
+    if proc.returncode != 0:
+        return None
+    return [rel for rel in proc.stdout.decode("utf-8", errors="replace").split("\x00") if rel]
+
+
+def check_tracked_personal_data(tracked: list[str] | None = None) -> None:
+    """Fail if personal-output paths, or filled-in profile templates, are tracked."""
+    if tracked is None:
+        tracked = _tracked_paths()
+    if tracked is None:
+        return
+    for rel in tracked:
+        if is_tracked_personal_output(rel):
+            errors.append(
+                f"tracked personal-data path: {rel!r}. Generated profiles, CVs, "
+                "cover letters, trackers, and archives must not be committed. "
+                "Move the file to $JOB_SEARCH_HOME or personal/ (see docs/PRIVACY.md) "
+                "and run `git rm --cached` on it."
+            )
+    tracked_set = set(tracked)
+    for rel, sentinel in PROFILE_SENTINELS.items():
+        if rel not in tracked_set:
+            continue
+        try:
+            text = (ROOT / rel).read_text(encoding="utf-8")
+        except OSError as exc:
+            errors.append(f"{rel}: unreadable while checking the profile sentinel: {exc}")
+            continue
+        if sentinel not in text:
+            errors.append(
+                f"tracked profile template lost its sentinel: {rel!r} no longer "
+                f"contains {sentinel!r}. Filled personal data must not replace the "
+                "template in git. Keep the placeholder here and write the filled "
+                "copy under $JOB_SEARCH_HOME or personal/ (docs/PRIVACY.md)."
+            )
+
+
 def main() -> int:
     check_permissions()
     check_gitignore()
     check_package_manifests()
-    check_tracked_node_modules()
+    tracked = _tracked_paths()
+    check_tracked_node_modules(tracked)
+    check_tracked_personal_data(tracked)
     if errors:
         print(f"security_guards: {len(errors)} failure(s)")
         for err in errors:
@@ -320,7 +450,7 @@ def main() -> int:
         return 1
     print(
         "security_guards: OK (permissions allowlist, hooks allowlist, gitignore rules, "
-        "package manifests, no tracked node_modules)"
+        "package manifests, no tracked node_modules, no tracked personal data)"
     )
     return 0
 
