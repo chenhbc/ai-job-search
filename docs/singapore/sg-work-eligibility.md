@@ -25,7 +25,7 @@ Add this to `01-candidate-profile.md` / CLAUDE.md under eligibility:
 - Nationality (for COMPASS C3 estimation only, never put on a CV): [UNKNOWN]
 ```
 
-**While `SG pass status` is `[UNKNOWN]`:** apply the gate as if the candidate needs an employer-sponsored EP (the strictest common case), mark every SG verdict `PROVISIONAL – pass status unknown`, and ask Larry once per session to fill the field. Never guess the status from his name, languages or CV.
+**While `SG pass status` is `[UNKNOWN]`:** apply the gate as if the candidate needs an employer-sponsored EP (the strictest common case), mark every SG verdict `PROVISIONAL – pass status unknown`, and ask the user once per session to fill the field. Never guess the status from their name, languages or CV.
 
 ## Sources (all checked 2026-10-19)
 
@@ -61,7 +61,7 @@ Two stages (MOM, EP eligibility page):
 
 The MOM page has an age-by-age table (ages 23–45). **Look up the exact row for the candidate's age; do not interpolate.** Example rows copied verbatim from MOM, current / from 2027: age 30 non-FS S$7,223 / S$7,750; age 30 FS S$7,982 / S$8,541; age 35 non-FS S$8,382 / S$9,000; age 35 FS S$9,255 / S$9,927.
 
-Which column applies: if Larry would start (application filed) **on or after 1 Jan 2027**, use the 2027 column. A posting found in Oct–Dec 2026 with a start date in 2027 will very likely be filed under the new thresholds.
+Which column applies: if the candidate would start (application filed) **on or after 1 Jan 2027**, use the 2027 column. A posting found in Oct–Dec 2026 with a start date in 2027 will very likely be filed under the new thresholds.
 
 **Financial services sector**: banks, insurers, asset managers and payments firms fall under the FS column. Classification is by the **employer's** registered sector, not the job title. An AI engineer at a bank is FS, while an AI engineer at a cloud vendor that sells to banks is not. If unsure, assume FS (stricter) and flag it.
 
@@ -83,7 +83,7 @@ Which column applies: if Larry would start (application filed) **on or after 1 J
 **SAT:** only the employer (or its employment agent) can run MOM's enhanced Self-Assessment Tool, which needs an EP eService login. MOM says an "eligible" SAT result means roughly a 90% chance of approval. The candidate cannot run the firm-level parts, which is why C1/C3/C4/C6 stay `unknown` in our estimate.
 
 ### S Pass
-For associate professionals and technicians. Current minimum S$3,300 (non-FS, age ≤23, rising to S$4,800 at 45+) and S$3,800 (FS, rising to S$5,650). From 1 Jan 2027 for new applications: S$3,600 (non-FS, rising to S$5,100) and S$4,000 (FS, rising to S$5,650). S Pass is also subject to employer quota and levy. For AI/LLM engineering roles an S Pass is unusual. If a posting's salary range is below the EP floor for Larry's age, flag that the employer may only be able to offer an S Pass (or nothing), and treat it as a FLAG for Larry to judge, not a PASS.
+For associate professionals and technicians. Current minimum S$3,300 (non-FS, age ≤23, rising to S$4,800 at 45+) and S$3,800 (FS, rising to S$5,650). From 1 Jan 2027 for new applications: S$3,600 (non-FS, rising to S$5,100) and S$4,000 (FS, rising to S$5,650). S Pass is also subject to employer quota and levy. For AI/LLM engineering roles an S Pass is unusual. If a posting's salary range is below the EP floor for the candidate's age, flag that the employer may only be able to offer an S Pass (or nothing), and treat it as a FLAG for the user to judge, not a PASS.
 
 ### ONE Pass (Overseas Networks & Expertise Pass)
 Individual pass, not tied to one employer, valid 5 years. Main salary route: at least S$30,000 fixed monthly salary for the 12 consecutive months before application, from one established employer (market cap ≥US$500m or revenue ≥US$200m), or prospective SG employment at that level. There is also an "outstanding achievements" route (sports, arts and culture, academia and research).
@@ -106,7 +106,7 @@ What it means for the candidate (MOM FCF page and "Consider all candidates fairl
 How to use this in evaluation:
 1. **For an EP-dependent candidate, an MCF listing is a strong signal** that the employer is set up to sponsor. Search MCF for the same employer and title. If found, record the MCF salary range (it is the legally visible range) and the posting date.
 2. If the role is only on LinkedIn or a company site, it is **not** a red flag by itself: the employer may post to MCF later, or be exempt. Note `MCF: not found` and add ≥14 days to the expected timeline from interview to offer.
-3. If the MCF range's **maximum** is below the EP qualifying salary for Larry's age and sector, the job **cannot** support an EP at the advertised pay. That is a FAIL for an EP-dependent candidate unless the employer confirms a different band (which needs a new ad).
+3. If the MCF range's **maximum** is below the EP qualifying salary for the candidate's age and sector, the job **cannot** support an EP at the advertised pay. That is a FAIL for an EP-dependent candidate unless the employer confirms a different band (which needs a new ad).
 
 ## 3. Posting wording (TAFEP) and how to read it
 
@@ -133,14 +133,14 @@ Run in order and stop at the first FAIL.
 2. **Wording check** (section 3). FAIL → stop, quote the wording.
 3. **Determine sector**: FS or non-FS, from the employer's business (bank, insurer, asset manager, payments → FS). Unsure → FS and flag.
 4. **Determine the application date column**: will the EP likely be filed before or from 1 Jan 2027?
-5. **Salary vs EP floor**: take the posted salary range (prefer the MCF ad; otherwise the posting; otherwise `unknown`). Compare against the MOM EP qualifying salary for Larry's age, sector and date column.
+5. **Salary vs EP floor**: take the posted salary range (prefer the MCF ad; otherwise the posting; otherwise `unknown`). Compare against the MOM EP qualifying salary for the candidate's age, sector and date column.
    - Range max < floor → **FAIL (EP not possible at advertised pay)**. Quote both numbers and the MOM link.
-   - Range straddles the floor → **FLAG**: EP only possible near the top of the band. Tell Larry this before applying.
+   - Range straddles the floor → **FLAG**: EP only possible near the top of the band. Tell the user this before applying.
    - Range min ≥ floor → **PASS Stage 1**.
    - No salary visible → **UNKNOWN Stage 1**: proceed, flag, and suggest asking the recruiter early. Never invent a figure.
 6. **COMPASS estimate** (skip if the posted fixed salary is ≥ S$22,500 → exempt):
    - C2 from the profile: 20 / 10 / 0.
-   - C5: `possible +20/+10` only if the role's duties clearly match an SOL title (AI engineer, AI researcher/scientist, data scientist/engineer, cloud, cybersecurity) **and** Larry meets the degree-or-3-years rule; else 0.
+   - C5: `possible +20/+10` only if the role's duties clearly match an SOL title (AI engineer, AI researcher/scientist, data scientist/engineer, cloud, cybersecurity) **and** the candidate meets the degree-or-3-years rule; else 0.
    - C1, C3, C4, C6: mark `unknown (employer-side)`. Small firm (<25 PMETs, e.g. an early start-up) → C3 = 10 and C4 = 10 by default.
    - Report as **"known points X + possible bonus Y; employer-side criteria unknown"**, never as a pass/fail. Say plainly that only the employer's SAT gives a real score. If known points + possible bonus is already ≥40, call it `COMPASS outlook: favourable`; if C2 = 0 and no SOL match, call it `COMPASS outlook: depends heavily on employer`.
 7. **FCF check** (section 2): search MCF for the role. Record `MCF: found (range, date)` / `not found` / `exempt-likely (salary ≥ S$22,500 or firm <10 staff)`.
@@ -157,7 +157,7 @@ Run in order and stop at the first FAIL.
 - Gate verdict: PASS / FLAG / FAIL
 ```
 
-A FAIL here means no scoring and no draft (same as the generic gate). Report it to Larry with the quote and source, because he may know something about his status that the profile doesn't.
+A FAIL here means no scoring and no draft (same as the generic gate). Report it to the user with the quote and source, because they may know something about their status that the profile doesn't.
 
 ## Re-verification rule
 

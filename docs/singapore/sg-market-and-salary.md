@@ -6,7 +6,7 @@ extends: 04-job-evaluation.md#6-salary-benchmark-optional
 
 # Singapore Market & Salary Research
 
-<!-- SETUP: No personalization needed. Larry's current/expected pay lives in the profile, never in this file. -->
+<!-- SETUP: No personalization needed. The user's current/expected pay lives in the profile, never in this file. -->
 
 This file tells the agent **how to find** SG pay data for AI / LLM / Agent roles and how to compare SG offers. It deliberately contains **no market salary figures**. Every number the agent reports must come from a source it opened in the current session, quoted with the source name, URL, the data's reference period, and the date it was checked. If no source gives a figure, say "not found" and list which sources were tried. **Never estimate, average across memory, or round a figure into existence.**
 
@@ -35,7 +35,7 @@ The official numbers below (CPF rates and ceilings) are statutory parameters, no
 2. **Posting first.** If the posting or its MCF twin shows a range, that is the primary figure. Quote it verbatim with the job ID/date.
 3. **Official baseline.** Pull the nearest SSOC occupation from MOM Occupational Wages 2025 (#1): median plus P25/P75 **gross** monthly, for the closest industry. State the mapping you used and that it covers residents only and excludes bonus.
 4. **Market cross-check.** Levels.fyi (#6) for the same company and level if it exists; otherwise NodeFlair (#7), then Glassdoor (#8). Report each separately with sample size; **do not blend** them into one number.
-5. **Recruiter guides** (#9–#11) only if Larry or the user has downloaded the guide (they are gated). Cite edition and page.
+5. **Recruiter guides** (#9–#11) only if the user has downloaded the guide (they are gated). Cite edition and page.
 6. **Floor check.** Compare against the EP qualifying salary only for eligibility, never as a benchmark.
 7. **Output** in the `04-job-evaluation.md` Salary Benchmark block:
 

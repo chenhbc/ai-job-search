@@ -6,7 +6,7 @@ extends: job-scraper/search-queries.md
 
 # Search Queries for Job Scraper: Singapore (AI / LLM / Agent)
 
-<!-- SETUP: Region defaults to SG (see region-defaults.md). Add or remove titles to match Larry's profile once /setup has run. -->
+<!-- SETUP: Region defaults to SG (see region-defaults.md). Add or remove titles to match the user's profile once /setup has run. -->
 
 ## Installed portal CLIs (primary for `/scrape`)
 
@@ -147,7 +147,7 @@ site:aisingapore.org careers
 ```
 
 ## Filtering rules (SG)
-1. Drop any result whose location is not Singapore (or "Remote – Singapore") unless Larry asked for remote-APAC.
+1. Drop any result whose location is not Singapore (or "Remote – Singapore") unless the user asked for remote-APAC.
 2. Keep the MCF job ID and salary range when a role appears on MCF. `sg-work-eligibility.md` uses it.
 3. Deduplicate LinkedIn and MCF twins by employer + title. Prefer the MCF record for salary and the employer page for the full description.
 4. Run the SG Eligibility Gate (`sg-work-eligibility.md`) before scoring.
