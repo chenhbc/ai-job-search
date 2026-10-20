@@ -455,6 +455,180 @@ class TrackedNodeModulesTests(GuardRepoFixture):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
+class TrackedPersonalDataTests(GuardRepoFixture):
+    """Personal outputs and filled-in profile templates must not be tracked."""
+
+    def _git(self, *args):
+        return subprocess.run(
+            ["git", *args], cwd=self.root, capture_output=True, text=True, check=False
+        )
+
+    def _init_repo(self):
+        self._git("init", "-q")
+        self._git("config", "user.email", "t@example.com")
+        self._git("config", "user.name", "t")
+
+    def test_force_added_tracker_fails(self):
+        self._init_repo()
+        (self.root / "job_search_tracker.csv").write_text("date,company\n", encoding="utf-8")
+        self._git("add", "-f", "job_search_tracker.csv")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("tracked personal-data path", result.stdout)
+        self.assertIn("job_search_tracker.csv", result.stdout)
+
+    def test_force_added_personal_directory_fails(self):
+        self._init_repo()
+        dest = self.root / "personal" / "CLAUDE.md"
+        dest.parent.mkdir()
+        dest.write_text("filled\n", encoding="utf-8")
+        self._git("add", "-f", "personal/CLAUDE.md")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("personal/CLAUDE.md", result.stdout)
+
+    def test_template_that_lost_its_sentinel_fails(self):
+        self._init_repo()
+        (self.root / "CLAUDE.md").write_text("# filled profile\n", encoding="utf-8")
+        self._git("add", "CLAUDE.md")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("lost its sentinel", result.stdout)
+        self.assertIn("[YOUR_NAME]", result.stdout)
+
+    def test_placeholders_and_gitkeep_stay_allowed(self):
+        self._init_repo()
+        (self.root / "CLAUDE.md").write_text("Name: [YOUR_NAME]\n", encoding="utf-8")
+        profile = self.root / ".claude" / "skills" / "job-application-assistant" / "01-candidate-profile.md"
+        profile.parent.mkdir(parents=True)
+        tokens = security_guards.REQUIRED_YOUR_TOKENS[profile.relative_to(self.root).as_posix()]
+        profile.write_text("".join(token + "\n" for token in tokens), encoding="utf-8")
+        (self.root / "cv").mkdir()
+        (self.root / "cv" / "main_example.tex").write_text(
+            "\\email{[your.email@example.com]}\n", encoding="utf-8"
+        )
+        keep = self.root / "documents" / "cv" / ".gitkeep"
+        keep.parent.mkdir(parents=True)
+        keep.write_text("", encoding="utf-8")
+        self._git(
+            "add",
+            "CLAUDE.md",
+            ".claude/skills/job-application-assistant/01-candidate-profile.md",
+            "cv/main_example.tex",
+            "documents/cv/.gitkeep",
+        )
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_partial_profile_fill_fails(self):
+        self._init_repo()
+        rel = ".claude/skills/job-application-assistant/01-candidate-profile.md"
+        profile = self.root / rel
+        profile.parent.mkdir(parents=True)
+        tokens = security_guards.REQUIRED_YOUR_TOKENS[rel]
+        text = "".join(token + "\n" for token in tokens).replace("[YOUR_NAME]", "Filled Name", 1)
+        profile.write_text(text, encoding="utf-8")
+        self._git("add", rel)
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("lost a placeholder", result.stdout)
+        self.assertIn("[YOUR_NAME]", result.stdout)
+
+    def test_replaced_your_token_in_later_profile_fails(self):
+        self._init_repo()
+        rel = ".claude/skills/job-application-assistant/04-job-evaluation.md"
+        path = self.root / rel
+        path.parent.mkdir(parents=True)
+        tokens = security_guards.REQUIRED_YOUR_TOKENS[rel]
+        text = "".join(token + "\n" for token in tokens).replace("[YOUR_PRIMARY_SKILLS]", "Python", 1)
+        path.write_text(text, encoding="utf-8")
+        self._git("add", rel)
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("[YOUR_PRIMARY_SKILLS]", result.stdout)
+
+    def test_cover_template_with_one_name_filled_fails(self):
+        self._init_repo()
+        rel = ".claude/skills/job-application-assistant/06-cover-letter-templates.md"
+        path = self.root / rel
+        path.parent.mkdir(parents=True)
+        tokens = security_guards.REQUIRED_YOUR_TOKENS[rel]
+        # One [YOUR_NAME] stays, so a presence check would pass. The count does not.
+        text = "[YOUR_NAME]\n" + "".join(
+            token + "\n" for token, count in tokens.items() if token != "[YOUR_NAME]" for _ in range(count)
+        )
+        path.write_text(text, encoding="utf-8")
+        self._git("add", rel)
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("[YOUR_NAME]", result.stdout)
+        self.assertIn("1 time(s)", result.stdout)
+
+    def test_cover_example_with_a_filled_name_fails(self):
+        self._init_repo()
+        path = self.root / "cover_letters" / "cover_example.tex"
+        path.parent.mkdir()
+        path.write_text("\\Huge{Filled Name}\n\\signature{[YOUR NAME]}\n", encoding="utf-8")
+        self._git("add", "-f", "cover_letters/cover_example.tex")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("[YOUR NAME]", result.stdout)
+
+    def test_cover_example_placeholders_stay_allowed(self):
+        self._init_repo()
+        path = self.root / "cover_letters" / "cover_example.tex"
+        path.parent.mkdir()
+        path.write_text("\\Huge{[YOUR NAME]}\n\\signature{[YOUR NAME]}\n", encoding="utf-8")
+        self._git("add", "-f", "cover_letters/cover_example.tex")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_changed_singapore_unknown_field_fails(self):
+        self._init_repo()
+        rel = "docs/singapore/sg-work-eligibility.md"
+        path = self.root / rel
+        path.parent.mkdir(parents=True)
+        lines = list(security_guards.SINGAPORE_UNKNOWN_FIELDS[rel])
+        lines[0] = "- SG pass status: SC"
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        self._git("add", rel)
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("[UNKNOWN] field", result.stdout)
+        self.assertIn("SG pass status: [UNKNOWN]", result.stdout)
+
+    def test_tracked_named_cv_pdf_fails(self):
+        self._init_repo()
+        path = self.root / "cv" / "Some_Name_CV.pdf"
+        path.parent.mkdir()
+        path.write_bytes(b"%PDF-1.1\n")
+        self._git("add", "-f", "cv/Some_Name_CV.pdf")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("tracked personal-data path", result.stdout)
+        self.assertIn("cv/Some_Name_CV.pdf", result.stdout)
+
+    def test_tracked_cover_letter_docx_fails(self):
+        self._init_repo()
+        path = self.root / "cover_letters" / "letter.docx"
+        path.parent.mkdir()
+        path.write_bytes(b"PK\x03\x04")
+        self._git("add", "-f", "cover_letters/letter.docx")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("cover_letters/letter.docx", result.stdout)
+
+    def test_generated_example_pdf_is_not_an_upstream_document(self):
+        self._init_repo()
+        path = self.root / "cv" / "main_example.pdf"
+        path.parent.mkdir()
+        path.write_bytes(b"%PDF-1.1\n")
+        self._git("add", "-f", "cv/main_example.pdf")
+        result = run_guards(self.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("cv/main_example.pdf", result.stdout)
+
+
 class RealRepoTests(unittest.TestCase):
     def test_guards_pass_on_this_repo(self):
         # The live check CI runs: the actual repo tree must satisfy its own guards.

@@ -38,6 +38,8 @@ Optional arguments:
 
 ### Step 0: Load State
 
+**Personal-data directory.** Read and write `job_scraper/seen_jobs.json`, `job_search_tracker.csv`, and the profile from `$JOB_SEARCH_HOME` when that is an absolute path outside this repository, otherwise from `personal/`. Fall back to the tracked template only when the personal copy does not exist. Never modify a tracked template.
+
 1. Read `job_scraper/seen_jobs.json` (create if missing - start with `{"seen": {}}`)
 2. Read `job_search_tracker.csv` to extract already-applied companies+roles
 3. Read `search-queries.md` (this directory) for the search strategy

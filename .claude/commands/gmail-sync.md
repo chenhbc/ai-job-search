@@ -6,11 +6,15 @@ Unlike `/outcome` (which asks the user what happened), `/gmail-sync` classifies 
 
 Follow these steps **in order**.
 
+**Personal-data directory.** Before reading or writing a profile file, the tracker, a generated CV, a cover letter, or an application archive, resolve the directory: if `$JOB_SEARCH_HOME` is an absolute path outside this repository, use it; otherwise use `personal/`. Every path this runbook names (`CLAUDE.md`, `01-candidate-profile.md`, the other `0*.md` profile files, `cv/main_example.tex`, `job_search_tracker.csv`, `documents/applications/`, and the rest) is relative to that directory. Read the personal copy when it exists, and fall back to the tracked template when it does not. Write only under that directory. Never modify a tracked template.
+
 ---
 
 ## Step 0: Prerequisites
 
-Confirm the Gmail MCP tools (`mcp__claude_ai_Gmail__*`) are available. If not, tell the user to connect the Gmail integration (claude.ai Settings → Connectors → Gmail) and stop - do not attempt this via Bash, IMAP, or any other channel.
+Use any Gmail connector that exposes `search_threads`, `get_thread`, and `list_labels`. The call names in the later steps are those three operations. Match on the operation. A runtime-specific tool prefix is irrelevant and must not be required.
+
+If no connector exposes those three operations, tell the user how to connect Gmail on the runtime they are using and stop. Do not attempt this via Bash, IMAP, or any other channel.
 
 ---
 

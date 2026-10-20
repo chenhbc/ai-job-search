@@ -1,5 +1,5 @@
 ---
-framework_version: 1.2.6
+framework_version: 1.2.7
 ---
 
 # Job Evaluation Framework
@@ -9,6 +9,8 @@ framework_version: 1.2.6
 ## Eligibility Gate — run before scoring
 
 If the candidate is not a citizen or permanent resident of the country they are applying in, run this first. It is a hard filter, not a scoring dimension, and it is separate from work-permit *timing*: timing asks "can they work the required hours yet?", eligibility asks "are they permitted to hold this job at all?". A candidate can pass timing and still be categorically excluded.
+
+**Singapore (default region on this fork).** After this generic gate, and before the Language Gate, also run `docs/singapore/sg-work-eligibility.md`. It adds work-pass thresholds, COMPASS, and the Fair Consideration Framework. The work-pass sections are skippable from the profile: when `SG pass status` is `SC` or `SPR`, only the posting-wording check runs. `[UNKNOWN]` is not a status — do not infer one; the Singapore note says how a provisional verdict is marked. Which region's file applies is `docs/singapore/region-defaults.md`. EU and US postings stay on this generic gate unless the user has named that region and a region file exists.
 
 Read the posting's eligibility / work rights / "who can apply" section **verbatim** and classify:
 
@@ -141,7 +143,7 @@ Present findings as:
 
 Interpret results relative to the baseline defined in the data file's metadata. For index-based data, higher typically means above-market compensation.
 
-If the salary tool is not configured, skip this section.
+If the salary tool is not configured, skip the index table above. For a Singapore posting, still follow `docs/singapore/sg-market-and-salary.md`: open the sources it names and quote only figures you fetched this session. That file does not contain market salary figures. EU and US salary sources stay the ones this section already describes, when the user has named that region (`docs/singapore/region-defaults.md`).
 
 ## Output Format
 

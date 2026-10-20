@@ -1,10 +1,12 @@
 ---
-framework_version: 1.4.7
+framework_version: 1.4.8
 ---
 
 # CV Templates and Tailoring Guide
 
 <!-- SETUP: Profile statements and section ordering are personalized by running /setup -->
+
+**Singapore applications (default region).** Also follow `docs/singapore/sg-cv-conventions.md` for photo, age, nationality, and fair-hiring form fields. It does not relax the honesty rules in this file. When the user names a Europe or US application for this request, this file's rules apply on their own (`docs/singapore/region-defaults.md`).
 
 ## Template: LaTeX moderncv (Banking Style)
 

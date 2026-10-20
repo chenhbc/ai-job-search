@@ -2,6 +2,8 @@
 
 Generate a self-contained HTML dashboard from `job_search_tracker.csv` and the application archives under `documents/applications/`. The output is a single `.html` file — no server, no dependencies — that can be opened directly in a browser.
 
+**Personal-data directory.** Read the tracker and the application archives from `$JOB_SEARCH_HOME` when that is an absolute path outside this repository, otherwise from `personal/`. Write the dashboard there too (`reports/` under that directory, unless the user gave another path). Never modify a tracked template.
+
 ## Step 0: Parse Arguments
 
 - No argument → output to `reports/application-dashboard.html`

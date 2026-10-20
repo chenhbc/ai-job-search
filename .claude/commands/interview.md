@@ -6,6 +6,8 @@ You are preparing the user for a real, scheduled interview on one of their appli
 
 Follow these steps **in order**.
 
+**Personal-data directory.** Before reading or writing a profile file, the tracker, a generated CV, a cover letter, or an application archive, resolve the directory: if `$JOB_SEARCH_HOME` is an absolute path outside this repository, use it; otherwise use `personal/`. Every path this runbook names (`CLAUDE.md`, `01-candidate-profile.md`, the other `0*.md` profile files, `cv/main_example.tex`, `job_search_tracker.csv`, `documents/applications/`, and the rest) is relative to that directory. Read the personal copy when it exists, and fall back to the tracked template when it does not. Write only under that directory. Never modify a tracked template.
+
 ---
 
 ## Step 0: Parse Input
